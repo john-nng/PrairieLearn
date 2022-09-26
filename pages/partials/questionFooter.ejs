@@ -39,11 +39,44 @@
           <span class="order-4 ml-2">This question will be manually graded.</span>
           <% } %>
         </span>
-        <span class="d-flex">
-          <input type="hidden" name="__variant_id" value="<%= variant.id %>">
+
+        <script> 
+        function checkVariant() {
+          var input = document.getElementById('variant-input').value;
+          console.log(value); 
+          if (input > 0 && input <= int('<%= maxVariant %>')) {
+            console.log('<%= nextVariantUrl %>' + document.getElementById('variant-input').value); 
+            document.getElementById('nextVariantNav').href = '<%= nextVariantUrl %>' + document.getElementById('variant-input').value;
+          } else {
+            console.log('out of bounds');
+          }
+        }
+        </script>
+
+        <span class="d-flex align-items-center">
+         <input type="hidden" name="__variant_id" value="<%= variant.id %>">
           <input type="hidden" name="__csrf_token" value="<%= __csrf_token %>">
-          <% if (showNewVariantButton) { %><a href="<%= newVariantUrl %>" class="btn btn-primary disable-on-click ml-1">New variant</a>
-          <% } else if (showTryAgainButton) { %><a href="<%= tryAgainUrl %>" class="btn btn-primary disable-on-click ml-1">Try a new variant</a>
+          <% if (showNewVariantButton) { %>
+            <div><a href="<%= newVariantUrl %>" class="btn btn-primary disable-on-click ml-1">Next variant</a></div>
+            <div><a href="<%= prevVariantUrl %>" class="btn btn-primary disable-on-click ml-1">Prev variant</a></div>
+            <div class="btn-group" role="group">
+              <a id="nextVariantNav" class="btn btn-primary ml-1" 
+                onclick="
+                  console.log(document.getElementById('variant-input').value); console.log('this is working');
+                  if (document.getElementById('variant-input').value > 0 && document.getElementById('variant-input').value <= parseInt('<%= maxVariant %>')) {
+                    console.log('<%= nextVariantUrl %>' + document.getElementById('variant-input').value); 
+                    document.getElementById('nextVariantNav').href = '<%= nextVariantUrl %>' + document.getElementById('variant-input').value;
+                  } else {
+                    throw console.error('Selected variant out of bounds.');;
+                  };
+                ">
+                Go to variant:
+              </a>
+              <span class="d-flex align-items-center">
+                <input type="number" min="0" max="<%= maxVariant %>" class="form-control form-control-sm" id="variant-input"> <!-- form-control-sm is smaller than input-sm -->
+              </span>
+            </div>
+         <% } else if (showTryAgainButton) { %><a href="<%= tryAgainUrl %>" class="btn btn-primary disable-on-click ml-1">Try a new variant</a>
           <% } else if (hasAttemptsOtherVariants) { %>
           <small class="font-italic align-self-center">Additional attempts available with new variants</small>
           <a class="btn btn-xs align-self-center" data-toggle="popover" data-html="true" data-content="<%= include('newVariantInfo') %>" data-placement="auto" data-trigger="focus" data-container="body" tabindex="0">
@@ -113,8 +146,9 @@
             <input type="hidden" name="__csrf_token" value="<%= __csrf_token %>">
             <input type="hidden" name="postData" class="postData">
             <input type="hidden" name="__action" class="__action">
-            <% if (showNewVariantButton) { %><a href="<%= newVariantUrl %>" class="btn btn-primary disable-on-click ml-1">New variant</a>
-            <% } else if (showTryAgainButton) { %><a href="<%= tryAgainUrl %>" class="btn btn-primary disable-on-click ml-1">Try a new variant</a>
+            <% if (showNewVariantButton) { %>
+              <a href="<%= newVariantUrl %>" class="btn btn-primary disable-on-click ml-1">New variant</a>
+           <% } else if (showTryAgainButton) { %><a href="<%= tryAgainUrl %>" class="btn btn-primary disable-on-click ml-1">Try a new variant</a>
             <% } else if (hasAttemptsOtherVariants) { %>
             <small class="font-italic align-self-center">Additional attempts available with new variants</small>
             <a class="btn btn-xs" data-toggle="popover" data-html="true" data-content="<%= include('newVariantInfo') %>" data-placement="auto" data-trigger="focus" data-container="body" tabindex="0">

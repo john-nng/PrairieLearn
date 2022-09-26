@@ -20,6 +20,7 @@ const courseUtil = require('../lib/courseUtil');
 const markdown = require('../lib/markdown');
 const chunks = require('../lib/chunks');
 const assets = require('../lib/assets');
+const Middleware = require('../lib/nvmiddleware');
 
 // Maps core element names to element info
 let coreElementsCache = {};
@@ -27,6 +28,8 @@ let coreElementsCache = {};
 let courseElementsCache = {};
 // Maps course IDs to course element extension info
 let courseExtensionsCache = {};
+// The question Middleware responsible for indexing question variants
+const middleware = new Middleware();
 
 /**
  * This subclass of Error supports chaining.
@@ -1019,7 +1022,7 @@ module.exports = {
     return options;
   },
 
-  async generateAsync(question, course, variant_seed) {
+  async generateAsync(question, course, variant_seed, variant_index) {
     return instrumented('freeform.generate', async () => {
       const context = await module.exports.getContext(question, course);
       const data = {
@@ -1027,6 +1030,8 @@ module.exports = {
         correct_answers: {},
         variant_seed: parseInt(variant_seed, 36),
         options: _.defaults({}, course.options, question.options),
+        variant_number: variant_index,
+        total_num_variants: -1,
       };
       _.extend(data.options, module.exports.getContextOptions(context));
 
@@ -1049,8 +1054,15 @@ module.exports = {
   },
 
   generate(question, course, variant_seed, callback) {
-    module.exports.generateAsync(question, course, variant_seed).then(
+    let variant_index
+    if (middleware.getTotalVariants() == -1) {
+      variant_index = 0;
+    } else {
+      variant_index = middleware.nextVariant();
+    }
+    module.exports.generateAsync(question, course, variant_seed, variant_index).then(
       ({ courseIssues, data }) => {
+        middleware.setTotalVariants(data.total_num_variants);
         callback(null, courseIssues, data);
       },
       (err) => {
@@ -1100,6 +1112,8 @@ module.exports = {
       }
     );
   },
+
+  //Generate Function 
 
   /**
    * @typedef {Object} RenderPanelResult
@@ -1152,6 +1166,8 @@ module.exports = {
       score: submission?.score ?? 0,
       feedback: submission?.feedback ?? {},
       variant_seed: parseInt(variant.variant_seed, 36),
+      variant_number: parseInt(variant.variant_number, 10),
+      total_num_variants: parseInt(variant.total_num_variants, 10),
       options: _.get(variant, 'options', {}),
       raw_submitted_answers: submission ? _.get(submission, 'raw_submitted_answer', {}) : {},
       editable: !!(locals.allowAnswerEditing && !locals.manualGradingInterface),

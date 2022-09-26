@@ -38,6 +38,15 @@
               <%- include('../partials/instructorInfoPanel', {question_context: 'instructor'}); %>
           </div>
       </div>
+      <script>
+        console.log("im in instructorPreviewQuestion");
+        console.log('<%= urlPrefix %>');
+        console.log('\<%= variant.params.a %>');
+        console.log('<%= variant.true_answer %>');
+        // for (const [key, value] of Object.entries('<%= variant.true_answer %>')) {
+        //   console.log(`${key}: ${value}`);
+        // }
+      </script>
 
     </div>
     <!-- Needs to be located below element scripts -->

@@ -977,6 +977,23 @@ module.exports.initExpress = function () {
     require('./pages/shared/floatFormatters'),
     require('./pages/instructorQuestionPreview/instructorQuestionPreview'),
   ]);
+  //Next Variant - Prev Variant 
+  app.use('/pl/course_instance/:course_instance_id/instructor/question/:question_id/preview/prevVariant', [
+    function (req, res, next) {
+      res.locals.navSubPage = 'preview';
+      next();
+    },
+    require('./pages/shared/floatFormatters'),
+    require('./pages/instructorQuestionPreview/instructorQuestionPreview'),
+  ]);
+  app.use('/pl/course_instance/:course_instance_id/instructor/question/:question_id/preview/nextVariant', [
+    function (req, res, next) {
+      res.locals.navSubPage = 'preview';
+      next();
+    },
+    require('./pages/shared/floatFormatters'),
+    require('./pages/instructorQuestionPreview/instructorQuestionPreview'),
+  ]);
   app.use('/pl/course_instance/:course_instance_id/instructor/question/:question_id/statistics', [
     function (req, res, next) {
       res.locals.navSubPage = 'statistics';
